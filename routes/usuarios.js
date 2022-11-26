@@ -4,7 +4,7 @@ const { getUsuarios, putUsuario, createUsuario, patchUsuario, deleteUsuario } = 
 const router = Router(); // llamar la función
 
 router.get("/", getUsuarios);
-router.put("/", putUsuario);
+router.put("/:id", putUsuario);
 router.post("/", createUsuario);
 router.patch("/", patchUsuario);
 router.delete("/", deleteUsuario);

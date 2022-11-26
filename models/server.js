@@ -23,6 +23,7 @@ class Server {
 
   middlewars() {
     this.app.use(cors());
+    this.app.use(express.json()); //parseo y lectura del body
     this.app.use(express.static("public")); // use es clave para saber que es un middleware
   }
 }
