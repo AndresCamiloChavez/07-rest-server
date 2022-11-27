@@ -1,5 +1,5 @@
 const { response, request } = require("express");
-
+const Usuario = require('../models/usuario');
 const getUsuarios = (req = request, res = response) => {
 
   const {q, nombre = "No name", apiKey} = req.query;
@@ -23,11 +23,15 @@ const putUsuario = (req, res) => {
   }); //  retornando un JSON en lugar de un text/html
 };
 
-const createUsuario = (req, res) => {
+const createUsuario = async (req, res) => {
+
+  const usuario = new Usuario(req.body);
+  await usuario.save();
+
   res.status(201).json({
     ok: true,
     respuesta: req.body,
-    msg: "post API controller",
+    usuario,
   });
 };
 
