@@ -14,12 +14,22 @@ const getUsuarios = (req = request, res = response) => {
   }); //  retornando un JSON en lugar de un text/html
 };
 
-const putUsuario = (req, res) => {
+const putUsuario = async (req, res) => {
   const id = req.params.id;
+  const {_id ,password, google, ...resto} = req.body;
+
+
+  if(password){
+    const salt = bcryptjs.genSaltSync();
+    resto.password = bcryptjs.hashSync(password, salt);
+  }
+
+  const usuario = await Usuario.findByIdAndUpdate(id, resto);
+
   res.status(200).json({
-    ok: true,
     id,
     msg: "put API controller",
+    usuario
   }); //  retornando un JSON en lugar de un text/html
 };
 
@@ -30,15 +40,6 @@ const createUsuario = async (req, res) => {
 
   const usuario = new Usuario({ nombre, correo, password, rol });
 
-  //Verificar si el correo existe
-  const existeEmail = await Usuario.findOne({ correo }); // busqueda por correo
-
-  if (existeEmail) {
-    return res.status(400).json({
-      message: 'El correo ya está registrado'
-    });
-  }
-
   //Encriptar la contraseña
   const salt = bcryptjs.genSaltSync();
   usuario.password = bcryptjs.hashSync(password, salt);
@@ -48,7 +49,6 @@ const createUsuario = async (req, res) => {
 
   res.status(201).json({
     ok: true,
-    respuesta: req.body,
     usuario,
   });
 };
