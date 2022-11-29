@@ -1,25 +1,37 @@
 const { response, request } = require("express");
 const bcryptjs = require("bcryptjs");
 const Usuario = require("../models/usuario");
-const getUsuarios = (req = request, res = response) => {
+
+const getUsuarios = async (req = request, res = response) => {
   const { q, nombre = "No name", apiKey } = req.query;
 
+  const { limit = 5, desde = 0 } = req.query;
+
   // console.log('Valor de los parametros', params);
-  res.status(200).json({
-    ok: true,
-    q,
-    nombre,
-    apiKey,
-    msg: "get API en controlador",
-  }); //  retornando un JSON en lugar de un text/html
+  console.log("Valor del limit", limit);
+
+  // const usuarios = await Usuario.find({ estado: true })
+  //   .skip(Number(desde))
+  //   .limit(Number(limit));
+
+  // const total = await Usuario.countDocuments({ estado: true });
+
+  const [total, usuarios] = await Promise.all([
+    Usuario.countDocuments({ estado: true }),
+    Usuario.find({ estado: true }).skip(Number(desde)).limit(Number(limit)),
+  ]);
+
+  return res.status(200).json({
+    total,
+    usuarios,
+  });
 };
 
 const putUsuario = async (req, res) => {
   const id = req.params.id;
-  const {_id ,password, google, ...resto} = req.body;
+  const { _id, password, google, ...resto } = req.body;
 
-
-  if(password){
+  if (password) {
     const salt = bcryptjs.genSaltSync();
     resto.password = bcryptjs.hashSync(password, salt);
   }
@@ -29,13 +41,11 @@ const putUsuario = async (req, res) => {
   res.status(200).json({
     id,
     msg: "put API controller",
-    usuario
+    usuario,
   }); //  retornando un JSON en lugar de un text/html
 };
 
 const createUsuario = async (req, res) => {
-
-  
   const { nombre, correo, password, rol } = req.body;
 
   const usuario = new Usuario({ nombre, correo, password, rol });
