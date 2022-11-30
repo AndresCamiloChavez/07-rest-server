@@ -1,5 +1,7 @@
 const { response } = require("express");
 const Usuairo = require("../models/usuario");
+const bcryptjs = require('bcryptjs');
+
 const login = async (req, res = response) => {
   const { correo, password } = req.body;
 
@@ -21,6 +23,14 @@ const login = async (req, res = response) => {
     }
 
     //Verificar la contraseña
+    const validPassword = bcryptjs.compareSync(password, usuario.password);
+
+    if(!validPassword){
+        return res.status(400).json({
+            msg: 'Usuario/Password ;) no son correctos'
+        });
+    }
+    
     res.status(200).json({
       message: "Hola a todos",
     });
