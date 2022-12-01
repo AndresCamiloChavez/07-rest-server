@@ -1,6 +1,7 @@
 const { response } = require("express");
 const Usuairo = require("../models/usuario");
 const bcryptjs = require('bcryptjs');
+const { generarJWT } = require("../helpers/generar-jwt");
 
 const login = async (req, res = response) => {
   const { correo, password } = req.body;
@@ -31,8 +32,10 @@ const login = async (req, res = response) => {
         });
     }
     
+    const token = await generarJWT(usuario.id);
     res.status(200).json({
-      message: "Hola a todos",
+      usuario,
+      token
     });
   } catch (error) {
     console.log("Error en auth", error);
