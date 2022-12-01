@@ -13,6 +13,7 @@ const {
   emailExiste,
   existeUsuarioPorId,
 } = require("../helpers/db-validators");
+const { validartJwt } = require("../middlewares/validart-jwt");
 
 const router = Router(); // llamar la función
 
@@ -45,6 +46,7 @@ router.post(
 );
 router.patch("/", patchUsuario);
 router.delete("/:id", [
+  validartJwt,
   check("id", "No es un ID válido").isMongoId(), // tambien es capaz darse de cuenta del id del param segmento
   check("id").custom(existeUsuarioPorId),
   validarCampos, // retonar los errores
