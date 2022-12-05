@@ -88,7 +88,7 @@ const googleSignIn = async (req, res = response) => {
       ok: false,
       msg: "El token no se pudo verificar",
     });
-  }
+  }v
 };
 
 module.exports = {
