@@ -6,17 +6,16 @@ const crearCategoria = async (req = request, res = response) => {
   const categoriaDb = await Categoria.findOne({ nombre });
 
   if (categoriaDb) {
-    res.status(400).json({
+    return res.status(400).json({
       msg: `La categoria ${nombre} ya existe`,
     });
   }
-
+  console.log('ESTA PASANDO');
   //generar la data a guardar
   const data = {
     nombre,
     usuario: req.usuarioAuth._id,
   };
-  console.log('Data', data);
   const categoria = new Categoria(data);
   await categoria.save();
 
@@ -59,16 +58,31 @@ const getCategorias = async (req = request, res =response) =>{
 }
 const borrarCategoria = async (req = request, res = response) =>{
   const {id}= req.params;
-  console.log('Valor del id ', id);
   const categoria = await Categoria.findByIdAndUpdate(id, {estado: false});
   const {estado, ...resto} = categoria; 
-  console.log('estado', estado);
-  console.log('resto', resto);
 
   res.status(200).json({
     categoria,
     id
   });
+}
+const actualizarCategoria = async (req = request, res = response) =>{
+  const {id}= req.params;
+  const {nombre} = req.body;
+
+  if(await Categoria.findOne({nombre})){
+    return res.status(400).json({
+      msg: `La categoria ${nombre} ya se encuentra`
+    });
+
+  }
+  const categoria = await Categoria.findByIdAndUpdate(id, {nombre});
+  
+  return res.status(200).json({
+    msg: 'Se ha actualizado con exito la categoria',
+    categoria
+  })
+
 }
 
 
@@ -78,5 +92,6 @@ module.exports = {
   crearCategoria,
   getCategoriaById,
   getCategorias,
-  borrarCategoria
+  borrarCategoria,
+  actualizarCategoria
 };

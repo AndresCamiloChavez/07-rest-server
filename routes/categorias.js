@@ -7,8 +7,10 @@ const {
   getCategoriaById,
   getCategorias,
   borrarCategoria,
+  actualizarCategoria,
 } = require("../controllers/categorias");
 const { existeCategoriaByid } = require("../helpers/db-validators");
+const { tieneRol } = require("../middlewares/validar-roles");
 
 const router = Router();
 
@@ -19,7 +21,7 @@ router.get("/", getCategorias);
 router.get(
   "/:id",
   [
-    check(":id", "No es un id válido").isMongoId(),
+    check("id", "No es un id válido").isMongoId(),
     check("id").custom(existeCategoriaByid),
     validarCampos,
   ],
@@ -39,12 +41,18 @@ router.post(
 );
 
 //Actualizar categoria por id, cualquiera con token válido
-router.put("/:id", (req, res) => {
-  console.log("Todo OK!");
-  res.status(200).json({
-    ok: "put categoria",
-  });
-});
+router.put("/:id",[
+  validartJwt,
+  tieneRol('ADMIN_ROL'),
+  check("id").custom(existeCategoriaByid),
+  validarCampos
+], actualizarCategoria);
 //Borrar una categoria,
-router.delete("/:id", [], borrarCategoria);
+router.delete("/:id", [
+  validartJwt,
+  tieneRol('ADMIN_ROL'),
+  check("id").custom(existeCategoriaByid),
+  check("nombre", "El nombre es obligatorio").notEmpty(),
+  validarCampos
+], borrarCategoria);
 module.exports = router;
