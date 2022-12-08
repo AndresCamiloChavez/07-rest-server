@@ -33,12 +33,25 @@ const crearProducto = async (req, res) => {
 
 const getProductoById = async (req = request, res = response) => {
   const { id } = req.params;
-  const producto = await Producto.findById(id);
+  const producto = await Producto.findById(id)
+    .populate("categoria")
+    .populate("usuario");
   return res.status(200).json(producto);
 };
 
 const updateProducto = async (req = request, res = response) => {
-  return res.status(200).json(productos);
+  const { nombre, categoria, precio, descripcion, disponible } = req.body;
+
+  const productoDb = await Producto.findByIdAndUpdate(
+    req.params.id,
+    { nombre, categoria, precio, descripcion, disponible },
+    { new: true }
+  );
+
+  return res.status(200).json({
+    msg: "Producto actualizado",
+    productoDb,
+  });
 };
 
 const getProductos = async (req = request, res = response) => {
@@ -46,11 +59,23 @@ const getProductos = async (req = request, res = response) => {
 
   const [total, productos] = await Promise.all([
     Producto.countDocuments({ estado: true }),
-    Producto.find({ estado: true }).skip(Number(desde)).limit(Number(limit)),
+    Producto.find({ estado: true })
+      .skip(Number(desde))
+      .limit(Number(limit))
+      .populate("categoria")
+      .populate("usuario"),
   ]);
   return res.status(200).json({
     total,
     productos,
+  });
+};
+const eliminarProducto = async (req = request, res = response) => {
+  const productoDb = await Producto.findByIdAndUpdate(req.params.id, {estado: false});
+
+  return res.status(200).json({
+    msg: 'Se elimino un producto',
+    productoDb,
   });
 };
 
@@ -58,5 +83,6 @@ module.exports = {
   crearProducto,
   getProductoById,
   getProductos,
-  updateProducto
+  updateProducto,
+  eliminarProducto
 };

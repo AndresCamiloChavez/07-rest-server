@@ -25,6 +25,7 @@ const existeUsuarioPorId = async (id) => {
 };
 
 const existeCategoriaByid = async(id) => {
+  if(!id) return;
   const categoria = await Categoria.findById(id);
   console.log('Valor de la categoria', categoria);
   if(!categoria){
@@ -44,5 +45,6 @@ module.exports = {
   emailExiste,
   existeUsuarioPorId,
   existeCategoriaByid,
-  existeProductoByid
+  existeProductoByid,
+  
 };

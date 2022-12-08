@@ -4,13 +4,15 @@ const {
   crearProducto,
   getProductoById,
   getProductos,
-  updateProducto
+  updateProducto,
+  eliminarProducto,
 } = require("../controllers/productos");
 const {
   existeCategoriaByid,
   existeProductoByid,
 } = require("../helpers/db-validators");
 const { validarCampos } = require("../middlewares/validar-campos");
+const { tieneRol } = require("../middlewares/validar-roles");
 const { validartJwt } = require("../middlewares/validart-jwt");
 const router = Router();
 
@@ -25,10 +27,18 @@ router.get(
 );
 
 router.get("/", getProductos);
-router.put("/:id",[
-    check('id', 'El id no es válido').isMongoId(),
-    check('id').custom( existeProductoByid ),
-],updateProducto);
+router.put(
+  "/:id",
+  [
+    validartJwt,
+    tieneRol("ADMIN_ROL"),
+    check("id", "El id no es válido").isMongoId(),
+    check("id").custom(existeProductoByid),
+    check("categoria").custom(existeCategoriaByid),
+    validarCampos,
+  ],
+  updateProducto
+);
 
 router.post(
   "/",
@@ -45,10 +55,10 @@ router.post(
   crearProducto
 );
 
-router.get("/", (req, res) => {
-  return res.status(200).json({
-    msg: "TODO OK!",
-  });
-});
+router.delete("/:id", [
+  check('id', 'Id no es válido').isMongoId(),
+  check('id').custom(existeProductoByid),
+  validarCampos
+], eliminarProducto);
 
 module.exports = router;
