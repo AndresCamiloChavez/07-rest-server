@@ -48,7 +48,7 @@ class Server {
     this.app.use(cors());
     this.app.use(express.json()); //parseo y lectura del body
     this.app.use(express.static("public")); // use es clave para saber que es un middleware
-    this.app.use(fileUpload({ useTempFiles: true, tempFileDir: "/tmp/" })); // carga de archivos
+    this.app.use(fileUpload({ useTempFiles: true, tempFileDir: "/tmp/" , createParentPath: true})); // carga de archivos
   }
 }
 
