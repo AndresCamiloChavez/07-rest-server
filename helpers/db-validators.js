@@ -39,6 +39,13 @@ const existeProductoByid = async(id) => {
     throw new Error(`El producto con el id ${id} no existe!`);
   }
 }
+const coleccionesPermitidas = (coleccion = '', coleccionesValidas = []) =>{
+  const existeColeccion = coleccionesValidas.includes(coleccion);
+  if(!existeColeccion){
+    throw new Error(`La ruta (${coleccion}), no es permitida`);
+  }
+  return true; /// ya que se esta implementando de otra forma, admeás el custon espera true
+}
 
 module.exports = {
   esRolValido,
@@ -46,5 +53,5 @@ module.exports = {
   existeUsuarioPorId,
   existeCategoriaByid,
   existeProductoByid,
-  
+  coleccionesPermitidas,
 };

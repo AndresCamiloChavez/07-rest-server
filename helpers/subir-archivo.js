@@ -25,7 +25,7 @@ const subirArchivo = (
       if (err) {
         return reject(err);
       }
-      resolve("El archivo se subio a el " + nombreTemp)
+      resolve(nombreTemp)
     });
   });
 };
