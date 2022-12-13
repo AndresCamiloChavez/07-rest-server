@@ -5,7 +5,8 @@ const { subirArchivo } = require("../helpers/subir-archivo");
 const Producto = require("../models/producto");
 const Usuario = require("../models/usuario");
 const fs = require("fs");
-const path = require("path");
+const cloudinary = require("cloudinary").v2;
+cloudinary.config(process.env.CLOUDINARY_URL);
 
 const cargarArchivo = async (req, res = response) => {
   if (!req.files || Object.keys(req.files).length === 0 || !req.files.archivo) {
@@ -116,8 +117,7 @@ const mostrarImagen = async (req, res = response) => {
       );
       console.log("valor path a eliminar", path);
       if (fs.existsSync(path)) {
-        return res.sendFile(path) // SendFile para enviar archivos
-        
+        return res.sendFile(path); // SendFile para enviar archivos
       }
       console.log("Se ha eliminado la imagen");
     }
@@ -126,8 +126,49 @@ const mostrarImagen = async (req, res = response) => {
   }
 };
 
+const actualizarImagenCloudinary = async (req, res = response) => {
+  const { coleccion, id } = req.params;
+
+  let modelo;
+
+  switch (coleccion) {
+    case "usuarios":
+      modelo = await Usuario.findById(id);
+      if (!modelo) {
+        return res.status(400).json({
+          msg: `No existe un usuario con el id ${id}`,
+        });
+      }
+      break;
+    case "productos":
+      modelo = await Producto.findById(id);
+      if (!modelo) {
+        return res.status(400).json({
+          msg: `No existe un producto con el id ${id}`,
+        });
+      }
+      break;
+    default:
+      return res.status(500).json({
+        msg: "Se me olvido validar esto ",
+      });
+  }
+  if (modelo.img) {
+    //limpiar imágenes previas
+    const nombreArr = modelo.img.split('/');
+    const idPublic = nombreArr[nombreArr.length-1].split('.')[0];
+    cloudinary.uploader.destroy(idPublic);
+  }
+  const {tempFilePath} = req.files.archivo;
+  const {secure_url} = await cloudinary.uploader.upload(tempFilePath);
+  modelo.img = secure_url;
+  await modelo.save();
+  res.json(modelo);
+};
+
 module.exports = {
   cargarArchivo,
   actualizarImagen,
   mostrarImagen,
+  actualizarImagenCloudinary,
 };
