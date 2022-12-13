@@ -18,8 +18,8 @@ const subirArchivo = (
       return reject(`La extensión ${extension} no es válida -> ${extencionesValidas}`);
     }
     const nombreTemp = uuidv4() + "." + extension; // generando un nombre unico
-    const uploadPath = path.join(__dirname, `../${nombreCarpeta}/` + nombreTemp);
-
+    const uploadPath = path.join(__dirname, `../uploads/${nombreCarpeta}/` + nombreTemp);
+    console.log('Valor path a subir', uploadPath);
     archivo.mv(uploadPath, (err) => {
       // para mover
       if (err) {
